@@ -34,27 +34,34 @@ const Canvas = {
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Pointer events with touch-action for mobile
-        canvas.style.touchAction = 'none';
-
+        // Pointer events - pen only draws, finger scrolls
         canvas.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            canvas.setPointerCapture(e.pointerId);  // Capture touch for continuous drawing
+            // Only capture and prevent default for pen/stylus, not finger touch
+            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
+                e.preventDefault();
+                canvas.setPointerCapture(e.pointerId);
+            }
             this.start(e);
         });
 
         canvas.addEventListener('pointermove', (e) => {
-            e.preventDefault();
+            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
+                e.preventDefault();
+            }
             this.draw(e);
         });
 
         canvas.addEventListener('pointerup', (e) => {
-            canvas.releasePointerCapture(e.pointerId);
+            if (canvas.hasPointerCapture(e.pointerId)) {
+                canvas.releasePointerCapture(e.pointerId);
+            }
             this.stop();
         });
 
         canvas.addEventListener('pointercancel', (e) => {
-            canvas.releasePointerCapture(e.pointerId);
+            if (canvas.hasPointerCapture(e.pointerId)) {
+                canvas.releasePointerCapture(e.pointerId);
+            }
             this.stop();
         });
 
@@ -237,6 +244,9 @@ const Canvas = {
     start(e) {
         if (this.mode === 'view') return;
         if (e.button !== 0 && e.pointerType === 'mouse') return;
+
+        // Only allow drawing with pen (stylus) or mouse, not finger touch
+        if (e.pointerType === 'touch') return;
 
         this.isDrawing = true;
         const pos = this.getPos(e);
