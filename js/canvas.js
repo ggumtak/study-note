@@ -1,4 +1,4 @@
-/**
+﻿/**
  * canvas.js - Drawing Canvas Module with Undo/Redo and Tool Options
  */
 
@@ -40,8 +40,7 @@ const Canvas = {
 
         // Pointer events - pen/stylus draws, finger scrolls
         canvas.addEventListener('pointerdown', (e) => {
-            UI.toast('down:' + e.pointerType + ' btn:' + e.button);
-            // Skip finger touch
+            // Skip finger touch - let browser handle scrolling
             if (e.pointerType === 'touch') return;
             
             // Pen/stylus/mouse: capture and draw
@@ -63,7 +62,13 @@ const Canvas = {
             if (canvas.hasPointerCapture(e.pointerId)) {
                 canvas.releasePointerCapture(e.pointerId);
             }
-            
+            // Restore touch action after pen stroke
+            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
+                const previewWrapper = document.getElementById('previewWrapper');
+                if (!previewWrapper?.classList.contains('zoom-locked')) {
+                    canvas.style.touchAction = 'pan-x pan-y';
+                }
+            }
             this.stop();
         });
 
@@ -71,7 +76,11 @@ const Canvas = {
             if (canvas.hasPointerCapture(e.pointerId)) {
                 canvas.releasePointerCapture(e.pointerId);
             }
-            
+            // Restore touch action
+            const previewWrapper = document.getElementById('previewWrapper');
+            if (!previewWrapper?.classList.contains('zoom-locked')) {
+                canvas.style.touchAction = 'pan-x pan-y';
+            }
             this.stop();
         });
 
@@ -269,7 +278,6 @@ const Canvas = {
         // When S Pen button is pressed, act as eraser temporarily
         const canvas = this.canvasEl;
         this.sPenButtonPressed = this.isSPenEraserPressed(e);
-        UI.toast('btn:' + e.button + ' btns:' + e.buttons);
         if (this.sPenButtonPressed) {
             this.originalMode = this.mode;
             this.mode = 'eraser';
@@ -446,7 +454,7 @@ const Canvas = {
         if (this.ctx && canvas) this.ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.updateHistoryButtons();
         UI.saveCurrentNote();
-        UI.toast('?�기가 지?�졌?�니??(Undo�?복구 가??');
+        UI.toast('?꾧린媛 吏?뚯죱?듬땲??(Undo濡?蹂듦뎄 媛??');
     },
 
     togglePageMode() {
@@ -463,7 +471,7 @@ const Canvas = {
             if (btn) btn.classList.toggle('active', this.pageMode);
             if (wrapper) wrapper.classList.toggle('page-mode', this.pageMode);
 
-            UI.toast(this.pageMode ? '?�이지 모드' : '?�크�?모드');
+            UI.toast(this.pageMode ? '?섏씠吏 紐⑤뱶' : '?ㅽ겕濡?紐⑤뱶');
         }
     },
 
