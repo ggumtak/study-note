@@ -1,0 +1,25 @@
+{
+    "name": "스터디 노트",
+    "short_name": "스터디",
+    "description": "마크다운 기반 스터디 노트 앱 - 필기, 문제풀이, 정답 관리",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#131314",
+    "theme_color": "#131314",
+    "icons": [
+        {
+            "src": "icons/img.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "education",
+        "productivity"
+    ],
+    "lang": "ko",
+    "dir": "ltr"
+}
