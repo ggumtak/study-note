@@ -1783,3 +1783,159 @@ body {
 #markdownPreview[contenteditable="true"]:focus {
     outline: none;
 }
+
+/* ===== Floating Toolbar ===== */
+.floating-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    padding: 4px 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.2s, transform 0.1s;
+    position: relative;
+    z-index: 100;
+}
+
+.floating-toolbar.dragging {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    transform: scale(1.02);
+    cursor: grabbing;
+}
+
+.floating-toolbar.floating {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.floating-toolbar.floating.dragging {
+    transform: scale(1.02);
+}
+
+.toolbar-drag-handle {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 6px;
+    cursor: grab;
+    border-radius: var(--radius-xs);
+    transition: background 0.15s;
+}
+
+.toolbar-drag-handle:hover {
+    background: var(--bg-hover);
+}
+
+.toolbar-drag-handle:active {
+    cursor: grabbing;
+}
+
+.toolbar-drag-handle span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: var(--text-muted);
+    border-radius: 50%;
+}
+
+.toolbar-content {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ===== Mini Drawing Palette ===== */
+.drawing-palette {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+    transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.drawing-palette.dragging {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    transform: scale(1.05);
+}
+
+.palette-handle {
+    display: flex;
+    gap: 2px;
+    padding: 6px 12px;
+    cursor: grab;
+    border-radius: var(--radius-xs);
+    transition: background 0.15s;
+}
+
+.palette-handle:hover {
+    background: var(--bg-hover);
+}
+
+.palette-handle:active {
+    cursor: grabbing;
+}
+
+.palette-handle span {
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: var(--text-muted);
+    border-radius: 50%;
+}
+
+.palette-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.palette-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--text-secondary);
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.palette-btn:hover {
+    background: var(--bg-hover);
+}
+
+.palette-btn:active {
+    transform: scale(0.95);
+}
+
+.palette-btn.active {
+    background: var(--accent);
+}
+
+.palette-btn.active svg {
+    stroke: white;
+}
+
+/* Horizontal mode (rotated 90 degrees) */
+.drawing-palette.horizontal {
+    flex-direction: row;
+}
+
+.drawing-palette.horizontal .palette-handle {
+    flex-direction: column;
+}

@@ -130,169 +130,177 @@
                     </svg>
                 </button>
                 <h1 class="header-title" id="noteTitle">노트</h1>
-                <div class="header-actions">
-                    <!-- View Mode Toggle -->
-                    <div class="mode-toggle">
-                        <button class="mode-btn" data-mode="note" title="노트">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                <polyline points="14 2 14 8 20 8" />
-                            </svg>
-                        </button>
-                        <button class="mode-btn active" data-mode="split" title="스플릿">
-                            <svg viewBox="0 0 24 24">
-                                <rect x="3" y="3" width="7" height="18" rx="1" />
-                                <rect x="14" y="3" width="7" height="18" rx="1" />
-                            </svg>
-                        </button>
-                        <button class="mode-btn" data-mode="answer" title="정답">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M9 11l3 3L22 4" />
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                            </svg>
-                        </button>
+
+                <!-- Floating Toolbar -->
+                <div class="floating-toolbar" id="floatingToolbar">
+                    <div class="toolbar-drag-handle" id="toolbarDragHandle">
+                        <span></span><span></span><span></span>
                     </div>
-
-                    <div class="toolbar-divider"></div>
-
-                    <!-- Drawing Tools with Popovers -->
-                    <div class="drawing-tools">
-                        <button class="toolbar-btn" data-tool="keyboard" title="키보드">
-                            <svg viewBox="0 0 24 24">
-                                <rect x="2" y="4" width="20" height="16" rx="2" />
-                                <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h12" />
-                            </svg>
-                        </button>
-
-                        <div class="tool-wrapper">
-                            <button class="toolbar-btn" data-tool="pen" title="펜">
+                    <div class="toolbar-content">
+                        <!-- View Mode Toggle -->
+                        <div class="mode-toggle">
+                            <button class="mode-btn" data-mode="note" title="노트">
                                 <svg viewBox="0 0 24 24">
-                                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
-                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
                                 </svg>
                             </button>
-                            <!-- Pen Options Popover -->
-                            <div class="tool-popover hidden" id="penPopover">
-                                <div class="popover-section">
-                                    <div class="popover-label">펜 색상</div>
-                                    <div class="color-grid" data-target="pen">
-                                        <button class="color-btn active" data-color="#ffffff"></button>
-                                        <button class="color-btn" data-color="#ff6b6b"></button>
-                                        <button class="color-btn" data-color="#4ecdc4"></button>
-                                        <button class="color-btn" data-color="#ffe66d"></button>
-                                        <button class="color-btn" data-color="#a855f7"></button>
-                                        <button class="color-btn" data-color="#3b82f6"></button>
-                                        <button class="color-btn" data-color="#22c55e"></button>
-                                        <button class="color-btn" data-color="#f97316"></button>
-                                    </div>
-                                </div>
-                                <div class="popover-section">
-                                    <div class="popover-label">굵기 <span id="penSizeLabel">3</span></div>
-                                    <input type="range" class="size-slider" id="penSizeSlider" min="1" max="30"
-                                        value="3">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="tool-wrapper">
-                            <button class="toolbar-btn" data-tool="highlighter" title="형광펜">
+                            <button class="mode-btn active" data-mode="split" title="스플릿">
                                 <svg viewBox="0 0 24 24">
-                                    <path d="M9 11l-6 6v3h9l3-3" />
-                                    <path d="M22 12l-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+                                    <rect x="3" y="3" width="7" height="18" rx="1" />
+                                    <rect x="14" y="3" width="7" height="18" rx="1" />
                                 </svg>
                             </button>
-                            <!-- Highlighter Options Popover -->
-                            <div class="tool-popover hidden" id="highlighterPopover">
-                                <div class="popover-section">
-                                    <div class="popover-label">형광펜 색상</div>
-                                    <div class="color-grid" data-target="highlighter">
-                                        <button class="color-btn active" data-color="#ffe66d"></button>
-                                        <button class="color-btn" data-color="#84fab0"></button>
-                                        <button class="color-btn" data-color="#a8edea"></button>
-                                        <button class="color-btn" data-color="#fed6e3"></button>
-                                        <button class="color-btn" data-color="#d299c2"></button>
-                                        <button class="color-btn" data-color="#89f7fe"></button>
-                                        <button class="color-btn" data-color="#ffecd2"></button>
-                                        <button class="color-btn" data-color="#c1dfc4"></button>
-                                    </div>
-                                </div>
-                                <div class="popover-section">
-                                    <div class="popover-label">굵기 <span id="highlighterSizeLabel">15</span></div>
-                                    <input type="range" class="size-slider" id="highlighterSizeSlider" min="5" max="50"
-                                        value="15">
-                                </div>
-                            </div>
+                            <button class="mode-btn" data-mode="answer" title="정답">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M9 11l3 3L22 4" />
+                                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                </svg>
+                            </button>
                         </div>
 
-                        <div class="tool-wrapper">
-                            <button class="toolbar-btn" data-tool="eraser" title="지우개">
+                        <div class="toolbar-divider"></div>
+
+                        <!-- Drawing Tools with Popovers -->
+                        <div class="drawing-tools">
+                            <button class="toolbar-btn" data-tool="keyboard" title="키보드">
                                 <svg viewBox="0 0 24 24">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" />
                                     <path
-                                        d="M20 20H7L3 16c-.6-.6-.6-1.5 0-2.1l10-10c.6-.6 1.5-.6 2.1 0l7 7c.6.6.6 1.5 0 2.1L13 22" />
+                                        d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h12" />
                                 </svg>
                             </button>
-                            <!-- Eraser Options Popover -->
-                            <div class="tool-popover hidden" id="eraserPopover">
-                                <div class="popover-section">
-                                    <div class="popover-label">지우개 크기 <span id="eraserSizeLabel">15</span></div>
-                                    <input type="range" class="size-slider" id="eraserSizeSlider" min="5" max="80"
-                                        value="15">
+
+                            <div class="tool-wrapper">
+                                <button class="toolbar-btn" data-tool="pen" title="펜">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                                    </svg>
+                                </button>
+                                <!-- Pen Options Popover -->
+                                <div class="tool-popover hidden" id="penPopover">
+                                    <div class="popover-section">
+                                        <div class="popover-label">펜 색상</div>
+                                        <div class="color-grid" data-target="pen">
+                                            <button class="color-btn active" data-color="#ffffff"></button>
+                                            <button class="color-btn" data-color="#ff6b6b"></button>
+                                            <button class="color-btn" data-color="#4ecdc4"></button>
+                                            <button class="color-btn" data-color="#ffe66d"></button>
+                                            <button class="color-btn" data-color="#a855f7"></button>
+                                            <button class="color-btn" data-color="#3b82f6"></button>
+                                            <button class="color-btn" data-color="#22c55e"></button>
+                                            <button class="color-btn" data-color="#f97316"></button>
+                                        </div>
+                                    </div>
+                                    <div class="popover-section">
+                                        <div class="popover-label">굵기 <span id="penSizeLabel">3</span></div>
+                                        <input type="range" class="size-slider" id="penSizeSlider" min="1" max="30"
+                                            value="3">
+                                    </div>
                                 </div>
-                                <div class="popover-section">
-                                    <button class="clear-all-btn" id="clearAllBtn">
-                                        <svg viewBox="0 0 24 24">
-                                            <path
-                                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                        </svg>
-                                        모두 지우기
-                                    </button>
+                            </div>
+
+                            <div class="tool-wrapper">
+                                <button class="toolbar-btn" data-tool="highlighter" title="형광펜">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M9 11l-6 6v3h9l3-3" />
+                                        <path d="M22 12l-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+                                    </svg>
+                                </button>
+                                <!-- Highlighter Options Popover -->
+                                <div class="tool-popover hidden" id="highlighterPopover">
+                                    <div class="popover-section">
+                                        <div class="popover-label">형광펜 색상</div>
+                                        <div class="color-grid" data-target="highlighter">
+                                            <button class="color-btn active" data-color="#ffe66d"></button>
+                                            <button class="color-btn" data-color="#84fab0"></button>
+                                            <button class="color-btn" data-color="#a8edea"></button>
+                                            <button class="color-btn" data-color="#fed6e3"></button>
+                                            <button class="color-btn" data-color="#d299c2"></button>
+                                            <button class="color-btn" data-color="#89f7fe"></button>
+                                            <button class="color-btn" data-color="#ffecd2"></button>
+                                            <button class="color-btn" data-color="#c1dfc4"></button>
+                                        </div>
+                                    </div>
+                                    <div class="popover-section">
+                                        <div class="popover-label">굵기 <span id="highlighterSizeLabel">15</span></div>
+                                        <input type="range" class="size-slider" id="highlighterSizeSlider" min="5"
+                                            max="50" value="15">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tool-wrapper">
+                                <button class="toolbar-btn" data-tool="eraser" title="지우개">
+                                    <svg viewBox="0 0 24 24">
+                                        <path
+                                            d="M20 20H7L3 16c-.6-.6-.6-1.5 0-2.1l10-10c.6-.6 1.5-.6 2.1 0l7 7c.6.6.6 1.5 0 2.1L13 22" />
+                                    </svg>
+                                </button>
+                                <!-- Eraser Options Popover -->
+                                <div class="tool-popover hidden" id="eraserPopover">
+                                    <div class="popover-section">
+                                        <div class="popover-label">지우개 크기 <span id="eraserSizeLabel">15</span></div>
+                                        <input type="range" class="size-slider" id="eraserSizeSlider" min="5" max="80"
+                                            value="15">
+                                    </div>
+                                    <div class="popover-section">
+                                        <button class="clear-all-btn" id="clearAllBtn">
+                                            <svg viewBox="0 0 24 24">
+                                                <path
+                                                    d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            </svg>
+                                            모두 지우기
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="toolbar-divider"></div>
+                        <div class="toolbar-divider"></div>
 
-                    <!-- Page Mode Toggle -->
-                    <button class="toolbar-btn" id="pageModeBtn" title="페이지 모드">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                            <line x1="12" y1="3" x2="12" y2="21" />
-                        </svg>
-                    </button>
-
-                    <!-- Markdown Input Button -->
-                    <button class="toolbar-btn" id="markdownBtn" title="마크다운 입력">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M3 5h18v14H3zM7 15V9l2 2 2-2v6M17 9v6l-2-2-2 2" />
-                        </svg>
-                    </button>
-
-                    <div class="toolbar-divider"></div>
-
-                    <!-- Undo/Redo -->
-                    <div class="history-tools">
-                        <button class="toolbar-btn" id="undoBtn" title="실행 취소 (Ctrl+Z)" disabled>
+                        <!-- Page Mode Toggle -->
+                        <button class="toolbar-btn" id="pageModeBtn" title="페이지 모드">
                             <svg viewBox="0 0 24 24">
-                                <path d="M3 7v6h6" />
-                                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <line x1="12" y1="3" x2="12" y2="21" />
                             </svg>
                         </button>
-                        <button class="toolbar-btn" id="redoBtn" title="다시 실행 (Ctrl+Y)" disabled>
+
+                        <!-- Markdown Input Button -->
+                        <button class="toolbar-btn" id="markdownBtn" title="마크다운 입력">
                             <svg viewBox="0 0 24 24">
-                                <path d="M21 7v6h-6" />
-                                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+                                <path d="M3 5h18v14H3zM7 15V9l2 2 2-2v6M17 9v6l-2-2-2 2" />
+                            </svg>
+                        </button>
+
+                        <div class="toolbar-divider"></div>
+
+                        <!-- Undo/Redo -->
+                        <div class="history-tools">
+                            <button class="toolbar-btn" id="undoBtn" title="실행 취소 (Ctrl+Z)" disabled>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M3 7v6h6" />
+                                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+                                </svg>
+                            </button>
+                            <button class="toolbar-btn" id="redoBtn" title="다시 실행 (Ctrl+Y)" disabled>
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M21 7v6h-6" />
+                                    <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <button class="icon-btn" id="noteMenuBtn" title="더보기">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="1" />
+                                <circle cx="12" cy="5" r="1" />
+                                <circle cx="12" cy="19" r="1" />
                             </svg>
                         </button>
                     </div>
-
-                    <button class="icon-btn" id="noteMenuBtn" title="더보기">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="1" />
-                            <circle cx="12" cy="5" r="1" />
-                            <circle cx="12" cy="19" r="1" />
-                        </svg>
-                    </button>
                 </div>
             </header>
 
@@ -303,6 +311,32 @@
                     <div class="preview-wrapper" id="previewWrapper">
                         <div id="markdownPreview" contenteditable="true"></div>
                         <canvas id="drawingCanvas"></canvas>
+
+                        <!-- Mini Floating Drawing Palette -->
+                        <div class="drawing-palette" id="drawingPalette">
+                            <div class="palette-handle" id="paletteHandle">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <button class="palette-btn" data-tool="pen" title="펜">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                                </svg>
+                            </button>
+                            <button class="palette-btn" data-tool="highlighter" title="형광펜">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M9 11l-6 6v3h9l3-3" />
+                                    <path d="M22 12l-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+                                </svg>
+                            </button>
+                            <button class="palette-btn" data-tool="eraser" title="지우개">
+                                <svg viewBox="0 0 24 24">
+                                    <path
+                                        d="M20 20H7L3 16c-.6-.6-.6-1.5 0-2.1l10-10c.6-.6 1.5-.6 2.1 0l6 6c.6.6.6 1.5 0 2.1L13 20" />
+                                    <path d="M6 11l7 7" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </section>
 

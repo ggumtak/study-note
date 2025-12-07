@@ -36,7 +36,131 @@ const App = {
         // Setup event listeners
         this.setupEvents();
 
+        // Setup draggable toolbar
+        this.setupDraggableToolbar();
+
+        // Setup drawing palette
+        this.setupDrawingPalette();
+
         console.log('✅ 앱 준비 완료!');
+    },
+
+    setupDraggableToolbar() {
+        const toolbar = document.getElementById('floatingToolbar');
+        const handle = document.getElementById('toolbarDragHandle');
+        if (!toolbar || !handle) return;
+
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+
+        handle.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'touch') return; // Only pen/mouse
+
+            isDragging = true;
+            toolbar.classList.add('dragging');
+
+            // Make it floating if not already
+            if (!toolbar.classList.contains('floating')) {
+                const rect = toolbar.getBoundingClientRect();
+                toolbar.style.left = rect.left + 'px';
+                toolbar.style.top = rect.top + 'px';
+                toolbar.classList.add('floating');
+            }
+
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = toolbar.offsetLeft;
+            initialY = toolbar.offsetTop;
+
+            handle.setPointerCapture(e.pointerId);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            toolbar.style.left = (initialX + dx) + 'px';
+            toolbar.style.top = (initialY + dy) + 'px';
+            toolbar.style.transform = 'none';
+        });
+
+        handle.addEventListener('pointerup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            toolbar.classList.remove('dragging');
+            handle.releasePointerCapture(e.pointerId);
+        });
+    },
+
+    setupDrawingPalette() {
+        const palette = document.getElementById('drawingPalette');
+        const handle = document.getElementById('paletteHandle');
+        if (!palette || !handle) return;
+
+        // Dragging
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+
+        handle.addEventListener('pointerdown', (e) => {
+            isDragging = true;
+            palette.classList.add('dragging');
+
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = palette.offsetLeft;
+            initialY = palette.offsetTop;
+
+            // Switch to fixed positioning
+            const rect = palette.getBoundingClientRect();
+            palette.style.position = 'fixed';
+            palette.style.left = rect.left + 'px';
+            palette.style.top = rect.top + 'px';
+            palette.style.bottom = 'auto';
+
+            handle.setPointerCapture(e.pointerId);
+        });
+
+        handle.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            palette.style.left = (initialX + dx) + 'px';
+            palette.style.top = (initialY + dy) + 'px';
+        });
+
+        handle.addEventListener('pointerup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            palette.classList.remove('dragging');
+            handle.releasePointerCapture(e.pointerId);
+        });
+
+        // Tool buttons
+        palette.querySelectorAll('.palette-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tool = btn.dataset.tool;
+
+                // Update active state
+                palette.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Sync with Canvas
+                if (typeof Canvas !== 'undefined') {
+                    Canvas.setTool(tool);
+                }
+            });
+        });
+
+        // Double-click to rotate 90 degrees
+        handle.addEventListener('dblclick', () => {
+            palette.classList.toggle('horizontal');
+        });
     },
 
     setupEvents() {
