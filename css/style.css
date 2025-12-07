@@ -415,14 +415,13 @@ body {
 }
 
 .question-pane {
-    flex: 3;
+    flex: 7;
     min-width: 200px;
 }
 
 .answer-pane {
-    flex: 1;
+    flex: 3;
     min-width: 150px;
-    max-width: 350px;
     background: var(--bg-surface);
     border-left: 1px solid var(--border);
     display: flex;

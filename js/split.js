@@ -102,12 +102,9 @@ const Split = {
     },
 
     loadRatio() {
-        const saved = localStorage.getItem('splitRatio');
-        if (saved) {
-            this.setRatio(parseFloat(saved));
-        } else {
-            this.setRatio(75); // Default: 75% question, 25% answer
-        }
+        // Reset to new default - 80% question pane
+        localStorage.removeItem('splitRatio');
+        this.setRatio(80);
     },
 
     setMode(mode) {
