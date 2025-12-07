@@ -40,7 +40,8 @@ const Canvas = {
 
         // Pointer events - pen/stylus draws, finger scrolls
         canvas.addEventListener('pointerdown', (e) => {
-            // Skip finger touch - let browser handle scrolling
+            UI.toast('down:' + e.pointerType + ' btn:' + e.button);
+            // Skip finger touch
             if (e.pointerType === 'touch') return;
             
             // Pen/stylus/mouse: capture and draw
