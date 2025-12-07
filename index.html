@@ -264,6 +264,14 @@
 
                     <div class="toolbar-divider"></div>
 
+                    <!-- Screen Lock Toggle -->
+                    <button class="toolbar-btn" id="screenLockBtn" title="화면 잠금">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                    </button>
+
                     <!-- Page Mode Toggle -->
                     <button class="toolbar-btn" id="pageModeBtn" title="페이지 모드">
                         <svg viewBox="0 0 24 24">
@@ -312,7 +320,7 @@
                 <!-- Question Pane (Left) -->
                 <section class="split-pane question-pane" id="questionPane">
                     <div class="preview-wrapper" id="previewWrapper">
-                        <div id="markdownPreview" contenteditable="true"></div>
+                        <div id="markdownPreview" contenteditable="true" spellcheck="false"></div>
                         <canvas id="drawingCanvas"></canvas>
                     </div>
                 </section>
@@ -325,7 +333,8 @@
                     <div class="answer-header">
                         <span class="answer-title">정답</span>
                     </div>
-                    <div class="answer-editor" id="answerEditor" contenteditable="true" data-placeholder="1. "></div>
+                    <div class="answer-editor" id="answerEditor" contenteditable="true" spellcheck="false"
+                        data-placeholder="1. "></div>
                 </section>
             </div>
 

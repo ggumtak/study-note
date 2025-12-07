@@ -240,6 +240,26 @@ const App = {
             UI.openFolder(UI.currentFolderId);
         });
 
+        // Screen Lock Toggle - prevents pinch zoom
+        const screenLockBtn = document.getElementById('screenLockBtn');
+        screenLockBtn?.addEventListener('click', () => {
+            const previewWrapper = document.getElementById('previewWrapper');
+            const canvas = document.getElementById('drawingCanvas');
+            const isLocked = screenLockBtn.classList.toggle('active');
+
+            if (isLocked) {
+                // Lock: prevent all touch gestures except stylus
+                previewWrapper?.classList.add('zoom-locked');
+                canvas.style.touchAction = 'none';
+                UI.toast('화면 잠금 ON - 확대/축소 비활성화');
+            } else {
+                // Unlock: allow finger scroll
+                previewWrapper?.classList.remove('zoom-locked');
+                canvas.style.touchAction = 'pan-x pan-y';
+                UI.toast('화면 잠금 OFF');
+            }
+        });
+
         // Mode buttons
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', () => {

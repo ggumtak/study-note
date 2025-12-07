@@ -547,6 +547,15 @@ body {
     pointer-events: auto;
 }
 
+/* Zoom lock mode - prevent all touch gestures */
+.preview-wrapper.zoom-locked {
+    touch-action: none;
+}
+
+.preview-wrapper.zoom-locked #drawingCanvas {
+    touch-action: none;
+}
+
 /* ===== Page Mode ===== */
 .preview-wrapper.page-mode {
     scroll-snap-type: y mandatory;
