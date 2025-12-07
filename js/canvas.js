@@ -454,7 +454,7 @@ const Canvas = {
         if (this.ctx && canvas) this.ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.updateHistoryButtons();
         UI.saveCurrentNote();
-        UI.toast('?꾧린媛 吏?뚯죱?듬땲??(Undo濡?蹂듦뎄 媛??');
+        // toast removed
     },
 
     togglePageMode() {
@@ -471,7 +471,7 @@ const Canvas = {
             if (btn) btn.classList.toggle('active', this.pageMode);
             if (wrapper) wrapper.classList.toggle('page-mode', this.pageMode);
 
-            UI.toast(this.pageMode ? '?섏씠吏 紐⑤뱶' : '?ㅽ겕濡?紐⑤뱶');
+            // toast removed
         }
     },
 
