@@ -15,6 +15,7 @@ const Canvas = {
     eraserSize: 15,
 
     isDrawing: false,
+    activePointerId: null,
     sPenButtonPressed: false,
     originalMode: null,
     lastX: 0,
@@ -46,30 +47,40 @@ const Canvas = {
             // Pen/stylus/mouse: capture and draw
             e.preventDefault();
             e.stopPropagation();
-            canvas.setPointerCapture(e.pointerId);
+            this.activePointerId = e.pointerId;
+            try {
+                canvas.setPointerCapture(e.pointerId);
+            } catch (err) {
+                // Pointer capture may fail on some devices, continue anyway
+            }
             this.start(e);
         });
 
         canvas.addEventListener('pointermove', (e) => {
-            // If we have captured this pointer (drawing in progress), always handle it
-            if (canvas.hasPointerCapture(e.pointerId)) {
+            // Only process if this is the active pointer and we're drawing
+            if (this.isDrawing && (e.pointerId === this.activePointerId || this.activePointerId === null)) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.draw(e);
                 return;
             }
-            // For non-captured pen/mouse, still prevent default
+            // For non-active pen/mouse, still prevent default to avoid browser gestures
             if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
                 e.preventDefault();
                 e.stopPropagation();
             }
-            this.draw(e);
         });
 
         canvas.addEventListener('pointerup', (e) => {
-            if (canvas.hasPointerCapture(e.pointerId)) {
-                canvas.releasePointerCapture(e.pointerId);
-            }
+            // Only process if this is the active pointer
+            if (e.pointerId !== this.activePointerId && this.activePointerId !== null) return;
+
+            try {
+                if (canvas.hasPointerCapture(e.pointerId)) {
+                    canvas.releasePointerCapture(e.pointerId);
+                }
+            } catch (err) { }
+            this.activePointerId = null;
             // Restore touch action after pen stroke
             if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
                 const previewWrapper = document.getElementById('previewWrapper');
@@ -81,9 +92,12 @@ const Canvas = {
         });
 
         canvas.addEventListener('pointercancel', (e) => {
-            if (canvas.hasPointerCapture(e.pointerId)) {
-                canvas.releasePointerCapture(e.pointerId);
-            }
+            try {
+                if (canvas.hasPointerCapture(e.pointerId)) {
+                    canvas.releasePointerCapture(e.pointerId);
+                }
+            } catch (err) { }
+            this.activePointerId = null;
             // Restore touch action
             const previewWrapper = document.getElementById('previewWrapper');
             if (!previewWrapper?.classList.contains('zoom-locked')) {
