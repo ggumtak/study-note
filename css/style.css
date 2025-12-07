@@ -1847,95 +1847,69 @@ body {
     gap: 4px;
 }
 
-/* ===== Mini Drawing Palette ===== */
-.drawing-palette {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
+/* ===== Detachable Drawing Tools ===== */
+.detachable-tools {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-sm);
+    padding: 2px 4px;
+    transition: all 0.2s;
+}
+
+.detachable-tools.detached {
+    position: fixed;
     background: var(--bg-elevated);
     border-radius: var(--radius-md);
     padding: 6px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    z-index: 50;
-    transition: box-shadow 0.2s, transform 0.1s;
+    z-index: 200;
 }
 
-.drawing-palette.dragging {
+.detachable-tools.detached.dragging {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
-.palette-handle {
+.detachable-tools.horizontal {
+    flex-direction: column;
+}
+
+.detach-handle {
     display: flex;
     gap: 2px;
-    padding: 6px 12px;
+    padding: 6px 4px;
     cursor: grab;
     border-radius: var(--radius-xs);
     transition: background 0.15s;
 }
 
-.palette-handle:hover {
+.detach-handle:hover {
     background: var(--bg-hover);
 }
 
-.palette-handle:active {
+.detach-handle:active {
     cursor: grabbing;
 }
 
-.palette-handle span {
+.detach-handle span {
     display: block;
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
     background: var(--text-muted);
     border-radius: 50%;
 }
 
-.palette-btn {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background 0.15s, transform 0.1s;
-}
-
-.palette-btn svg {
-    width: 22px;
-    height: 22px;
-    stroke: var(--text-secondary);
-    stroke-width: 1.5;
-    fill: none;
-}
-
-.palette-btn:hover {
-    background: var(--bg-hover);
-}
-
-.palette-btn:active {
-    transform: scale(0.95);
-}
-
-.palette-btn.active {
-    background: var(--accent);
-}
-
-.palette-btn.active svg {
-    stroke: white;
-}
-
-/* Horizontal mode (rotated 90 degrees) */
-.drawing-palette.horizontal {
-    flex-direction: row;
-}
-
-.drawing-palette.horizontal .palette-handle {
+.detachable-tools.horizontal .detach-handle {
     flex-direction: column;
+}
+
+/* Rotate button - hidden until detached */
+.rotate-btn {
+    display: none;
+}
+
+.detachable-tools.detached .rotate-btn {
+    display: flex;
 }

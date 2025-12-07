@@ -96,29 +96,31 @@ const App = {
     },
 
     setupDrawingPalette() {
-        const palette = document.getElementById('drawingPalette');
-        const handle = document.getElementById('paletteHandle');
-        if (!palette || !handle) return;
+        // This is now setupDetachableTools
+        const tools = document.getElementById('detachableTools');
+        const handle = document.getElementById('detachHandle');
+        const rotateBtn = document.getElementById('rotateToolsBtn');
+        if (!tools || !handle) return;
 
-        // Dragging
         let isDragging = false;
         let startX, startY, initialX, initialY;
 
         handle.addEventListener('pointerdown', (e) => {
             isDragging = true;
-            palette.classList.add('dragging');
 
+            // Detach if not already
+            if (!tools.classList.contains('detached')) {
+                const rect = tools.getBoundingClientRect();
+                tools.classList.add('detached');
+                tools.style.left = rect.left + 'px';
+                tools.style.top = rect.top + 'px';
+            }
+
+            tools.classList.add('dragging');
             startX = e.clientX;
             startY = e.clientY;
-            initialX = palette.offsetLeft;
-            initialY = palette.offsetTop;
-
-            // Switch to fixed positioning
-            const rect = palette.getBoundingClientRect();
-            palette.style.position = 'fixed';
-            palette.style.left = rect.left + 'px';
-            palette.style.top = rect.top + 'px';
-            palette.style.bottom = 'auto';
+            initialX = tools.offsetLeft;
+            initialY = tools.offsetTop;
 
             handle.setPointerCapture(e.pointerId);
         });
@@ -130,36 +132,20 @@ const App = {
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
 
-            palette.style.left = (initialX + dx) + 'px';
-            palette.style.top = (initialY + dy) + 'px';
+            tools.style.left = (initialX + dx) + 'px';
+            tools.style.top = (initialY + dy) + 'px';
         });
 
         handle.addEventListener('pointerup', (e) => {
             if (!isDragging) return;
             isDragging = false;
-            palette.classList.remove('dragging');
+            tools.classList.remove('dragging');
             handle.releasePointerCapture(e.pointerId);
         });
 
-        // Tool buttons
-        palette.querySelectorAll('.palette-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tool = btn.dataset.tool;
-
-                // Update active state
-                palette.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                // Sync with Canvas
-                if (typeof Canvas !== 'undefined') {
-                    Canvas.setTool(tool);
-                }
-            });
-        });
-
-        // Double-click to rotate 90 degrees
-        handle.addEventListener('dblclick', () => {
-            palette.classList.toggle('horizontal');
+        // Rotate button
+        rotateBtn?.addEventListener('click', () => {
+            tools.classList.toggle('horizontal');
         });
     },
 
