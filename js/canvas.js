@@ -40,14 +40,13 @@ const Canvas = {
 
         // Pointer events - pen/stylus draws, finger scrolls
         canvas.addEventListener('pointerdown', (e) => {
-            // Pen/stylus: capture and prevent default
-            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
-                e.preventDefault();
-                e.stopPropagation();
-                canvas.setPointerCapture(e.pointerId);
-                // Temporarily lock touch action during pen stroke
-                canvas.style.touchAction = 'none';
-            }
+            // Skip finger touch - let browser handle scrolling
+            if (e.pointerType === 'touch') return;
+            
+            // Pen/stylus/mouse: capture and draw
+            e.preventDefault();
+            e.stopPropagation();
+            canvas.setPointerCapture(e.pointerId);
             this.start(e);
         });
 
@@ -455,7 +454,7 @@ const Canvas = {
         if (this.ctx && canvas) this.ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.updateHistoryButtons();
         UI.saveCurrentNote();
-        UI.toast('필기가 지워졌습니다 (Undo로 복구 가능)');
+        UI.toast('?�기가 지?�졌?�니??(Undo�?복구 가??');
     },
 
     togglePageMode() {
@@ -472,7 +471,7 @@ const Canvas = {
             if (btn) btn.classList.toggle('active', this.pageMode);
             if (wrapper) wrapper.classList.toggle('page-mode', this.pageMode);
 
-            UI.toast(this.pageMode ? '페이지 모드' : '스크롤 모드');
+            UI.toast(this.pageMode ? '?�이지 모드' : '?�크�?모드');
         }
     },
 
