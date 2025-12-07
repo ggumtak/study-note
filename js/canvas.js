@@ -81,13 +81,6 @@ const Canvas = {
                 }
             } catch (err) { }
             this.activePointerId = null;
-            // Restore touch action after pen stroke
-            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
-                const previewWrapper = document.getElementById('previewWrapper');
-                if (!previewWrapper?.classList.contains('zoom-locked')) {
-                    canvas.style.touchAction = 'pan-x pan-y';
-                }
-            }
             this.stop();
         });
 
@@ -98,11 +91,6 @@ const Canvas = {
                 }
             } catch (err) { }
             this.activePointerId = null;
-            // Restore touch action
-            const previewWrapper = document.getElementById('previewWrapper');
-            if (!previewWrapper?.classList.contains('zoom-locked')) {
-                canvas.style.touchAction = 'pan-x pan-y';
-            }
             this.stop();
         });
 

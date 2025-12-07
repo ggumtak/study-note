@@ -263,7 +263,7 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-lg);
-    z-index: 100;
+    z-index: 200;
     min-width: 180px;
     padding: 12px;
 }
