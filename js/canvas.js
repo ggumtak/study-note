@@ -42,7 +42,7 @@ const Canvas = {
         canvas.addEventListener('pointerdown', (e) => {
             // Skip finger touch - let browser handle scrolling
             if (e.pointerType === 'touch') return;
-            
+
             // Pen/stylus/mouse: capture and draw
             e.preventDefault();
             e.stopPropagation();
@@ -51,6 +51,14 @@ const Canvas = {
         });
 
         canvas.addEventListener('pointermove', (e) => {
+            // If we have captured this pointer (drawing in progress), always handle it
+            if (canvas.hasPointerCapture(e.pointerId)) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.draw(e);
+                return;
+            }
+            // For non-captured pen/mouse, still prevent default
             if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
                 e.preventDefault();
                 e.stopPropagation();
