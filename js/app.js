@@ -6,8 +6,22 @@ const App = {
     drawings: [],
     textBoxes: [],
 
-    init() {
+    async init() {
         console.log('📚 스터디 노트 시작...');
+
+        // Auto-clear old caches on startup (dev mode)
+        if ('caches' in window) {
+            try {
+                const keys = await caches.keys();
+                const currentVersion = 'study-note-v6';
+                for (const key of keys) {
+                    if (key !== currentVersion) {
+                        await caches.delete(key);
+                        console.log('🗑️ Old cache deleted:', key);
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        }
 
         // Initialize modules
         Markdown.init();
