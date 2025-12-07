@@ -34,12 +34,29 @@ const Canvas = {
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Pointer events (unified mouse/touch/pen)
-        canvas.addEventListener('pointerdown', (e) => this.start(e));
-        canvas.addEventListener('pointermove', (e) => this.draw(e));
-        canvas.addEventListener('pointerup', () => this.stop());
-        canvas.addEventListener('pointerleave', () => this.stop());
-        canvas.addEventListener('pointercancel', () => this.stop());
+        // Pointer events with touch-action for mobile
+        canvas.style.touchAction = 'none';
+
+        canvas.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            canvas.setPointerCapture(e.pointerId);  // Capture touch for continuous drawing
+            this.start(e);
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            e.preventDefault();
+            this.draw(e);
+        });
+
+        canvas.addEventListener('pointerup', (e) => {
+            canvas.releasePointerCapture(e.pointerId);
+            this.stop();
+        });
+
+        canvas.addEventListener('pointercancel', (e) => {
+            canvas.releasePointerCapture(e.pointerId);
+            this.stop();
+        });
 
         // Keyboard shortcuts
         window.addEventListener('keydown', (e) => this.handleKeydown(e));
@@ -154,12 +171,11 @@ const Canvas = {
         const canvas = document.getElementById('drawingCanvas');
         if (!canvas) return;
 
-        // Handle keyboard tool - focus on inline typing cursor for direct input
+        // Handle keyboard tool - focus on preview for direct input
         if (tool === 'keyboard') {
-            const typingCursor = document.getElementById('inlineTypingCursor');
-            if (typingCursor) {
-                typingCursor.classList.remove('hidden');
-                typingCursor.focus();
+            const preview = document.getElementById('markdownPreview');
+            if (preview) {
+                preview.focus();
             }
 
             // Disable drawing mode
