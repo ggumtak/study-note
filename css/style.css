@@ -536,6 +536,16 @@ body {
     height: 100%;
 }
 
+#drawingCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    pointer-events: auto;
+}
+
 /* ===== Page Mode ===== */
 .preview-wrapper.page-mode {
     scroll-snap-type: y mandatory;
