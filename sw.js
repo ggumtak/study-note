@@ -1,4 +1,4 @@
-const CACHE_NAME = 'study-note-v17';
+const CACHE_NAME = 'study-note-v18';
 const urlsToCache = [
     './',
     './index.html',
