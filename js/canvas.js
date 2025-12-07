@@ -34,12 +34,15 @@ const Canvas = {
         this.resize();
         window.addEventListener('resize', () => this.resize());
 
-        // Pointer events - pen only draws, finger scrolls
+        // Pointer events - pen/stylus draws, finger scrolls
         canvas.addEventListener('pointerdown', (e) => {
-            // Only capture and prevent default for pen/stylus, not finger touch
+            // Pen/stylus: capture and prevent default
             if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
                 e.preventDefault();
+                e.stopPropagation();
                 canvas.setPointerCapture(e.pointerId);
+                // Temporarily lock touch action during pen stroke
+                canvas.style.touchAction = 'none';
             }
             this.start(e);
         });
@@ -47,6 +50,7 @@ const Canvas = {
         canvas.addEventListener('pointermove', (e) => {
             if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
                 e.preventDefault();
+                e.stopPropagation();
             }
             this.draw(e);
         });
@@ -55,6 +59,13 @@ const Canvas = {
             if (canvas.hasPointerCapture(e.pointerId)) {
                 canvas.releasePointerCapture(e.pointerId);
             }
+            // Restore touch action after pen stroke
+            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
+                const previewWrapper = document.getElementById('previewWrapper');
+                if (!previewWrapper?.classList.contains('zoom-locked')) {
+                    canvas.style.touchAction = 'pan-x pan-y';
+                }
+            }
             this.stop();
         });
 
@@ -62,7 +73,20 @@ const Canvas = {
             if (canvas.hasPointerCapture(e.pointerId)) {
                 canvas.releasePointerCapture(e.pointerId);
             }
+            // Restore touch action
+            const previewWrapper = document.getElementById('previewWrapper');
+            if (!previewWrapper?.classList.contains('zoom-locked')) {
+                canvas.style.touchAction = 'pan-x pan-y';
+            }
             this.stop();
+        });
+
+        // Additional: prevent pointerleave from breaking stroke
+        canvas.addEventListener('pointerleave', (e) => {
+            // Only stop if we've lost capture
+            if (this.isDrawing && !canvas.hasPointerCapture(e.pointerId)) {
+                this.stop();
+            }
         });
 
         // Keyboard shortcuts
@@ -248,6 +272,14 @@ const Canvas = {
         // Only allow drawing with pen (stylus) or mouse, not finger touch
         if (e.pointerType === 'touch') return;
 
+        // S Pen button detection - button 5 is pen eraser, button 2 is secondary
+        // When S Pen button is pressed, act as eraser temporarily
+        this.sPenButtonPressed = (e.pointerType === 'pen' && (e.button === 5 || e.button === 2 || e.buttons === 32));
+        if (this.sPenButtonPressed) {
+            this.originalMode = this.mode;
+            this.mode = 'eraser';
+        }
+
         this.isDrawing = true;
         const pos = this.getPos(e);
         this.lastX = pos.x;
@@ -289,6 +321,13 @@ const Canvas = {
     stop() {
         if (!this.isDrawing) return;
         this.isDrawing = false;
+
+        // Restore original mode if S Pen button was used
+        if (this.sPenButtonPressed && this.originalMode) {
+            this.mode = this.originalMode;
+            this.originalMode = null;
+            this.sPenButtonPressed = false;
+        }
 
         if (this.currentStroke && this.currentStroke.points.length > 0) {
             this.history.push(this.currentStroke);
