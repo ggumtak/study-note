@@ -276,42 +276,16 @@ const App = {
             });
         });
 
-        // Inline typing cursor - REAL-TIME rendering (Samsung Notes style)
-        const typingCursor = document.getElementById('inlineTypingCursor');
+        // Direct editing on markdownPreview
         const markdownInput = document.getElementById('markdownInput');
-        const previewContainer = document.getElementById('markdownPreview');
+        const preview = document.getElementById('markdownPreview');
 
-        // Real-time rendering as user types
-        typingCursor?.addEventListener('input', () => {
-            if (!markdownInput || !previewContainer) return;
-
-            // Get typed text and append to existing markdown
-            const typedText = typingCursor.innerText || '';
-
-            // Update hidden markdown input
-            markdownInput.value = typedText;
-
-            // Render immediately using inline renderer
-            if (Markdown.renderInline) {
-                previewContainer.innerHTML = Markdown.renderInline(typedText);
+        preview?.addEventListener('input', () => {
+            // Sync content to hidden textarea
+            if (markdownInput) {
+                markdownInput.value = preview.innerText || '';
             }
-
-            // Auto-save
             UI.saveCurrentNote();
-        });
-
-        // Handle Enter key for newline
-        typingCursor?.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                // Allow default behavior for newline in contenteditable
-                // Just trigger save after
-                setTimeout(() => UI.saveCurrentNote(), 100);
-            }
-        });
-
-        // Focus handler - when clicking on preview area, focus typing cursor
-        previewContainer?.addEventListener('click', () => {
-            if (typingCursor) typingCursor.focus();
         });
 
         // Close menus on outside click
