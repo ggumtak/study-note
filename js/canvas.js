@@ -41,15 +41,12 @@ const Canvas = {
 
         // Pointer events - pen/stylus draws, finger scrolls
         canvas.addEventListener('pointerdown', (e) => {
-            // Skip finger touch - let browser handle scrolling
+            // Skip finger touch - handled separately for scroll
             if (e.pointerType === 'touch') return;
 
             // Pen/stylus/mouse: capture and draw
             e.preventDefault();
             e.stopPropagation();
-
-            // Lock touch-action during pen stroke to prevent browser gesture interference
-            canvas.style.touchAction = 'none';
 
             this.activePointerId = e.pointerId;
             try {
@@ -85,10 +82,6 @@ const Canvas = {
                 }
             } catch (err) { }
             this.activePointerId = null;
-
-            // Restore touch-action for finger scroll after pen stroke
-            canvas.style.touchAction = 'manipulation';
-
             this.stop();
         });
 
@@ -99,12 +92,28 @@ const Canvas = {
                 }
             } catch (err) { }
             this.activePointerId = null;
-
-            // Restore touch-action for finger scroll
-            canvas.style.touchAction = 'manipulation';
-
             this.stop();
         });
+
+        // Manual touch scroll handler - since canvas has touch-action: none,
+        // we need to handle finger scroll manually
+        let touchScrollY = 0;
+        let touchStartY = 0;
+        const previewWrapper = document.getElementById('previewWrapper');
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                touchStartY = e.touches[0].clientY;
+                touchScrollY = previewWrapper?.scrollTop || 0;
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1 && previewWrapper) {
+                const deltaY = touchStartY - e.touches[0].clientY;
+                previewWrapper.scrollTop = touchScrollY + deltaY;
+            }
+        }, { passive: true });
 
         // Additional: prevent pointerleave from breaking stroke
         canvas.addEventListener('pointerleave', (e) => {
