@@ -4,6 +4,7 @@
 
 const Canvas = {
     ctx: null,
+    canvasEl: null,
     mode: 'view', // 'view' | 'pen' | 'highlighter' | 'eraser'
 
     // Tool settings
@@ -14,6 +15,8 @@ const Canvas = {
     eraserSize: 15,
 
     isDrawing: false,
+    sPenButtonPressed: false,
+    originalMode: null,
     lastX: 0,
     lastY: 0,
 
@@ -30,6 +33,7 @@ const Canvas = {
         const canvas = document.getElementById('drawingCanvas');
         if (!canvas) return;
 
+        this.canvasEl = canvas;
         this.ctx = canvas.getContext('2d');
         this.resize();
         window.addEventListener('resize', () => this.resize());
@@ -188,18 +192,23 @@ const Canvas = {
     },
 
     resize() {
-        const canvas = document.getElementById('drawingCanvas');
+        const canvas = this.canvasEl;
         const wrapper = document.getElementById('previewWrapper');
         const preview = document.getElementById('markdownPreview');
         if (!canvas || !wrapper || !preview) return;
 
-        canvas.width = Math.max(wrapper.clientWidth, preview.scrollWidth);
-        canvas.height = Math.max(wrapper.clientHeight, preview.scrollHeight);
+        const width = Math.max(wrapper.clientWidth, preview.scrollWidth);
+        const height = Math.max(wrapper.clientHeight, preview.scrollHeight);
+
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
         this.redrawAll();
     },
 
     setTool(tool) {
-        const canvas = document.getElementById('drawingCanvas');
+        const canvas = this.canvasEl;
         if (!canvas) return;
 
         // Handle keyboard tool - focus on preview for direct input
@@ -218,13 +227,7 @@ const Canvas = {
         // Update mode
         if (tool === 'pen' || tool === 'highlighter' || tool === 'eraser') {
             this.mode = tool;
-            canvas.classList.remove('drawing-mode', 'eraser-mode');
-
-            if (tool === 'eraser') {
-                canvas.classList.add('eraser-mode');
-            } else {
-                canvas.classList.add('drawing-mode');
-            }
+            this.applyCanvasModeClass(canvas, tool);
         }
 
         // Update toolbar button states
@@ -241,7 +244,7 @@ const Canvas = {
             this.setTool('eraser');
         } else {
             this.mode = 'view';
-            const canvas = document.getElementById('drawingCanvas');
+            const canvas = this.canvasEl;
             if (canvas) {
                 canvas.classList.remove('drawing-mode', 'eraser-mode');
             }
@@ -274,10 +277,12 @@ const Canvas = {
 
         // S Pen button detection - button 5 is pen eraser, button 2 is secondary
         // When S Pen button is pressed, act as eraser temporarily
-        this.sPenButtonPressed = (e.pointerType === 'pen' && (e.button === 5 || e.button === 2 || e.buttons === 32));
+        const canvas = this.canvasEl;
+        this.sPenButtonPressed = this.isSPenEraserPressed(e);
         if (this.sPenButtonPressed) {
             this.originalMode = this.mode;
             this.mode = 'eraser';
+            this.applyCanvasModeClass(canvas, 'eraser');
         }
 
         this.isDrawing = true;
@@ -325,6 +330,7 @@ const Canvas = {
         // Restore original mode if S Pen button was used
         if (this.sPenButtonPressed && this.originalMode) {
             this.mode = this.originalMode;
+            this.applyCanvasModeClass(this.canvasEl, this.mode);
             this.originalMode = null;
             this.sPenButtonPressed = false;
         }
@@ -338,12 +344,20 @@ const Canvas = {
     },
 
     getPos(e) {
-        const wrapper = document.getElementById('previewWrapper');
-        const wrapperRect = wrapper.getBoundingClientRect();
+        const canvas = this.canvasEl;
+        if (!canvas) return { x: 0, y: 0 };
+
+        const rect = canvas.getBoundingClientRect();
+
+        // Handle touch events
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const scaleX = rect.width ? canvas.width / rect.width : 1;
+        const scaleY = rect.height ? canvas.height / rect.height : 1;
 
         return {
-            x: e.clientX - wrapperRect.left + wrapper.scrollLeft,
-            y: e.clientY - wrapperRect.top + wrapper.scrollTop
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
         };
     },
 
@@ -367,7 +381,8 @@ const Canvas = {
 
     redrawAll() {
         if (!this.ctx) return;
-        const canvas = document.getElementById('drawingCanvas');
+        const canvas = this.canvasEl;
+        if (!canvas) return;
         this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (const stroke of this.history) {
@@ -436,8 +451,8 @@ const Canvas = {
         }
 
         this.history = [];
-        const canvas = document.getElementById('drawingCanvas');
-        if (this.ctx) this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const canvas = this.canvasEl;
+        if (this.ctx && canvas) this.ctx.clearRect(0, 0, canvas.width, canvas.height);
         this.updateHistoryButtons();
         UI.saveCurrentNote();
         UI.toast('필기가 지워졌습니다 (Undo로 복구 가능)');
@@ -557,5 +572,22 @@ const Canvas = {
     // Get current drawings for saving
     getDrawings() {
         return this.history;
+    },
+
+    isSPenEraserPressed(e) {
+        if (e.pointerType !== 'pen') return false;
+        const buttons = e.buttons || 0;
+        return e.button === 5 || e.button === 2 || (buttons & 32) === 32 || (buttons & 64) === 64;
+    },
+
+    applyCanvasModeClass(canvas, mode) {
+        if (!canvas) return;
+        canvas.classList.remove('drawing-mode', 'eraser-mode');
+
+        if (mode === 'eraser') {
+            canvas.classList.add('eraser-mode');
+        } else if (mode === 'pen' || mode === 'highlighter') {
+            canvas.classList.add('drawing-mode');
+        }
     }
 };
