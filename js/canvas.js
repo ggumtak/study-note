@@ -47,6 +47,7 @@ const Canvas = {
             e.preventDefault();
             e.stopPropagation();
             canvas.setPointerCapture(e.pointerId);
+            UI.toast('Ææ °¨Áö: ' + e.pointerType);
             this.start(e);
         });
 
@@ -62,13 +63,7 @@ const Canvas = {
             if (canvas.hasPointerCapture(e.pointerId)) {
                 canvas.releasePointerCapture(e.pointerId);
             }
-            // Restore touch action after pen stroke
-            if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
-                const previewWrapper = document.getElementById('previewWrapper');
-                if (!previewWrapper?.classList.contains('zoom-locked')) {
-                    canvas.style.touchAction = 'pan-x pan-y';
-                }
-            }
+            
             this.stop();
         });
 
@@ -76,11 +71,7 @@ const Canvas = {
             if (canvas.hasPointerCapture(e.pointerId)) {
                 canvas.releasePointerCapture(e.pointerId);
             }
-            // Restore touch action
-            const previewWrapper = document.getElementById('previewWrapper');
-            if (!previewWrapper?.classList.contains('zoom-locked')) {
-                canvas.style.touchAction = 'pan-x pan-y';
-            }
+            
             this.stop();
         });
 
