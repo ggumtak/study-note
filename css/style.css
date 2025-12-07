@@ -542,7 +542,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    touch-action: none;
+    /* Allow finger pan/scroll, but stylus draws */
+    touch-action: pan-x pan-y;
     pointer-events: auto;
 }
 
