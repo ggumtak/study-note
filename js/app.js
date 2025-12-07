@@ -241,21 +241,20 @@ const App = {
         });
 
         // Screen Lock Toggle - prevents pinch zoom
+        // Note: Canvas always has touch-action: none (CSS). Finger touch is handled by returning early in canvas.js pointerdown.
+        // This toggle only affects the previewWrapper class for additional styling.
         const screenLockBtn = document.getElementById('screenLockBtn');
         screenLockBtn?.addEventListener('click', () => {
             const previewWrapper = document.getElementById('previewWrapper');
-            const canvas = document.getElementById('drawingCanvas');
             const isLocked = screenLockBtn.classList.toggle('active');
 
             if (isLocked) {
-                // Lock: prevent all touch gestures except stylus
+                // Lock: prevent finger scroll (zoom-locked class adds touch-action: none to wrapper)
                 previewWrapper?.classList.add('zoom-locked');
-                canvas.style.touchAction = 'none';
                 UI.toast('화면 잠금 ON - 확대/축소 비활성화');
             } else {
-                // Unlock: allow finger scroll
+                // Unlock: allow finger scroll via wrapper, but canvas still captures pen
                 previewWrapper?.classList.remove('zoom-locked');
-                canvas.style.touchAction = 'pan-x pan-y';
                 UI.toast('화면 잠금 OFF');
             }
         });

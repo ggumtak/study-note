@@ -47,6 +47,10 @@ const Canvas = {
             // Pen/stylus/mouse: capture and draw
             e.preventDefault();
             e.stopPropagation();
+
+            // Lock touch-action during pen stroke to prevent browser gesture interference
+            canvas.style.touchAction = 'none';
+
             this.activePointerId = e.pointerId;
             try {
                 canvas.setPointerCapture(e.pointerId);
@@ -81,6 +85,10 @@ const Canvas = {
                 }
             } catch (err) { }
             this.activePointerId = null;
+
+            // Restore touch-action for finger scroll after pen stroke
+            canvas.style.touchAction = 'manipulation';
+
             this.stop();
         });
 
@@ -91,6 +99,10 @@ const Canvas = {
                 }
             } catch (err) { }
             this.activePointerId = null;
+
+            // Restore touch-action for finger scroll
+            canvas.style.touchAction = 'manipulation';
+
             this.stop();
         });
 

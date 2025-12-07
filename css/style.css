@@ -542,7 +542,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    touch-action: none;
+    /* Allow touch scroll (browser handles), pen input captured by JS */
+    touch-action: manipulation;
     pointer-events: auto;
     z-index: 100;
 }
