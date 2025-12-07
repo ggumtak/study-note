@@ -65,6 +65,25 @@ const UI = {
         setTimeout(() => {
             Canvas.resize();
             this.restoreTextBoxes(note.textBoxes || []);
+
+            // Load existing content into typing cursor and focus (Samsung Notes style)
+            const typingCursor = document.getElementById('inlineTypingCursor');
+            if (typingCursor) {
+                typingCursor.classList.remove('hidden');
+                // Preserve existing markdown content
+                typingCursor.innerText = note.markdown || '';
+                typingCursor.focus();
+
+                // Move cursor to end of content
+                const range = document.createRange();
+                const sel = window.getSelection();
+                if (typingCursor.childNodes.length > 0) {
+                    range.selectNodeContents(typingCursor);
+                    range.collapse(false); // false = collapse to end
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            }
         }, 100);
     },
 

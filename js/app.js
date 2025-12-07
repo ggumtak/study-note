@@ -86,7 +86,7 @@ const App = {
                     const note = DB.createNote(UI.currentFolderId, name);
                     if (note) {
                         UI.openNote(note.id);
-                        document.getElementById('inputModal')?.classList.remove('hidden');
+                        // Don't auto-open modal - let user type directly
                     }
                 }
             });
@@ -262,36 +262,42 @@ const App = {
             });
         });
 
-        // Inline typing cursor - REAL-TIME rendering
+        // Inline typing cursor - REAL-TIME rendering (Samsung Notes style)
         const typingCursor = document.getElementById('inlineTypingCursor');
         const markdownInput = document.getElementById('markdownInput');
+        const previewContainer = document.getElementById('markdownPreview');
 
-        // Store base markdown (before inline typing starts)
-        let baseMarkdown = '';
+        // Real-time rendering as user types
+        typingCursor?.addEventListener('input', () => {
+            if (!markdownInput || !previewContainer) return;
 
-        // When keyboard mode starts, save current markdown as base
-        document.querySelectorAll('.mode-btn[data-mode="keyboard"]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                baseMarkdown = markdownInput?.value || '';
-            });
+            // Get typed text and append to existing markdown
+            const typedText = typingCursor.innerText || '';
+
+            // Update hidden markdown input
+            markdownInput.value = typedText;
+
+            // Render immediately using inline renderer
+            if (Markdown.renderInline) {
+                previewContainer.innerHTML = Markdown.renderInline(typedText);
+            }
+
+            // Auto-save
+            UI.saveCurrentNote();
         });
 
-        // Real-time rendering as user types in contenteditable
-        typingCursor?.addEventListener('input', () => {
-            if (!markdownInput) return;
+        // Handle Enter key for newline
+        typingCursor?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                // Allow default behavior for newline in contenteditable
+                // Just trigger save after
+                setTimeout(() => UI.saveCurrentNote(), 100);
+            }
+        });
 
-            // Combine base markdown with current typing
-            const typedText = typingCursor.textContent || '';
-            const fullContent = baseMarkdown
-                ? baseMarkdown + '\n' + typedText
-                : typedText;
-
-            markdownInput.value = fullContent;
-            Markdown.render();
-
-            // Scroll to bottom
-            const wrapper = document.getElementById('previewWrapper');
-            if (wrapper) wrapper.scrollTop = wrapper.scrollHeight;
+        // Focus handler - when clicking on preview area, focus typing cursor
+        previewContainer?.addEventListener('click', () => {
+            if (typingCursor) typingCursor.focus();
         });
 
         // Close menus on outside click
@@ -342,8 +348,8 @@ const App = {
                 // Create new note with content
                 const note = DB.createNote(UI.currentFolderId, fileName);
                 if (note) {
-                    note.markdown = content;
-                    DB.updateNote(note.id, note);
+                    // Fix: Use correct signature (folderId, noteId, updates)
+                    DB.updateNote(UI.currentFolderId, note.id, { markdown: content });
                     UI.openFolder(UI.currentFolderId);
                     UI.toast(`"${fileName}" 불러오기 완료`);
                 }

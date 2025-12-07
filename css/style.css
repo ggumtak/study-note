@@ -528,6 +528,15 @@ body {
     }
 }
 
+/* ===== Preview Wrapper ===== */
+.preview-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
+
 /* ===== Page Mode ===== */
 .preview-wrapper.page-mode {
     scroll-snap-type: y mandatory;
@@ -1755,4 +1764,107 @@ body {
 .choice-text {
     flex: 1;
     line-height: 1.6;
+}
+
+/* ===== Inline Typing Cursor (Samsung Notes Style) ===== */
+.typing-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 100%;
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.8;
+    outline: none;
+    border: none;
+    background: transparent;
+    caret-color: var(--accent);
+    padding: 16px 20px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    z-index: 5;
+}
+
+.typing-cursor:focus {
+    outline: none;
+}
+
+.typing-cursor.hidden {
+    display: none;
+}
+
+/* Hide typing cursor when there's markdown content */
+#markdownPreview:not(:empty)+.typing-cursor {
+    display: none;
+}
+
+/* Blinking cursor animation */
+.typing-cursor:empty::after {
+    content: '|';
+    animation: blink 1s infinite;
+    color: var(--accent);
+    font-weight: normal;
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Inline rendered markdown within typing area */
+.typing-cursor p,
+.typing-cursor h1,
+.typing-cursor h2,
+.typing-cursor h3,
+.typing-cursor h4,
+.typing-cursor h5,
+.typing-cursor h6 {
+    margin: 0.5em 0;
+}
+
+.typing-cursor code {
+    background: var(--bg-code);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.9em;
+}
+
+.typing-cursor pre {
+    background: var(--bg-code);
+    padding: 12px 16px;
+    border-radius: var(--radius-xs);
+    overflow-x: auto;
+    margin: 0.5em 0;
+}
+
+.typing-cursor pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.typing-cursor strong {
+    font-weight: 600;
+}
+
+.typing-cursor em {
+    font-style: italic;
+}
+
+.typing-cursor blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    color: var(--text-secondary);
+    margin: 0.5em 0;
 }

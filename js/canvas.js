@@ -154,19 +154,17 @@ const Canvas = {
         const canvas = document.getElementById('drawingCanvas');
         if (!canvas) return;
 
-        // Handle keyboard tool - open markdown input modal
+        // Handle keyboard tool - focus on inline typing cursor for direct input
         if (tool === 'keyboard') {
-            const modal = document.getElementById('inputModal');
-            const textarea = document.getElementById('markdownInput');
-            modal?.classList.remove('hidden');
-
-            if (textarea) {
-                setTimeout(() => {
-                    textarea.focus();
-                    textarea.scrollTop = textarea.scrollHeight;
-                    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-                }, 100);
+            const typingCursor = document.getElementById('inlineTypingCursor');
+            if (typingCursor) {
+                typingCursor.classList.remove('hidden');
+                typingCursor.focus();
             }
+
+            // Disable drawing mode
+            this.mode = 'view';
+            canvas.classList.remove('drawing-mode', 'eraser-mode');
             return;
         }
 
