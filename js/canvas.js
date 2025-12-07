@@ -47,7 +47,6 @@ const Canvas = {
             e.preventDefault();
             e.stopPropagation();
             canvas.setPointerCapture(e.pointerId);
-            UI.toast('Ææ °¨Áö: ' + e.pointerType);
             this.start(e);
         });
 
@@ -269,6 +268,7 @@ const Canvas = {
         // When S Pen button is pressed, act as eraser temporarily
         const canvas = this.canvasEl;
         this.sPenButtonPressed = this.isSPenEraserPressed(e);
+        UI.toast('btn:' + e.button + ' btns:' + e.buttons);
         if (this.sPenButtonPressed) {
             this.originalMode = this.mode;
             this.mode = 'eraser';
