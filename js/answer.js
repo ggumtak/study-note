@@ -1,95 +1,84 @@
 /**
- * answer.js - Answer Editor with Auto-numbering
- * Handles automatic numbering (1. → Enter → 2.)
+ * answer.js - Answer Editor with Professional Auto-numbering
+ * Google Docs/Word style numbering with smart behavior
  */
 
 const AnswerEditor = {
     editor: null,
-    isNumberingMode: false,
-    currentNumber: 0,
 
     init() {
         this.editor = document.getElementById('answerEditor');
         if (!this.editor) return;
 
         this.editor.addEventListener('keydown', (e) => this.handleKeydown(e));
-        this.editor.addEventListener('input', () => this.handleInput());
+        this.editor.addEventListener('input', () => this.saveNote());
         this.editor.addEventListener('paste', (e) => this.handlePaste(e));
     },
 
     handleKeydown(e) {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
             this.handleEnter(e);
         } else if (e.key === 'Backspace') {
             this.handleBackspace(e);
+        } else if (e.key === 'Tab') {
+            this.handleTab(e);
         }
     },
 
     handleEnter(e) {
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return;
+        const { lineText, lineStart, lineEnd, cursorInLine } = this.getLineInfo();
+        const match = lineText.match(/^(\d+)\.\s*/);
 
-        const currentLine = this.getCurrentLineText();
+        if (!match) return; // Not a numbered line, default behavior
 
-        // Check if current line starts with number
-        const match = currentLine.match(/^(\d+)\.\s*/);
+        e.preventDefault();
 
-        if (e.shiftKey) {
-            // Shift+Enter: just line break, no numbering
+        const num = parseInt(match[1]);
+        const prefix = match[0];
+        const content = lineText.slice(prefix.length);
+
+        // Case 1: Empty numbered line (just "N. ") - remove number and exit
+        if (content.trim() === '') {
+            this.replaceRange(lineStart, lineEnd, '');
             return;
         }
 
-        if (match) {
-            e.preventDefault();
-            const num = parseInt(match[1]);
-            const lineContent = currentLine.slice(match[0].length).trim();
-
-            if (lineContent === '') {
-                // Empty numbered line - exit numbering mode
-                // Just add a newline, keep the empty number line as is
-                this.isNumberingMode = false;
-                document.execCommand('insertText', false, '\n');
-            } else {
-                // Insert new line with next number
-                this.isNumberingMode = true;
-                this.currentNumber = num + 1;
-                document.execCommand('insertText', false, '\n' + this.currentNumber + '. ');
-            }
-        } else if (this.isNumberingMode) {
-            // Continue numbering mode
-            e.preventDefault();
-            this.currentNumber++;
-            document.execCommand('insertText', false, '\n' + this.currentNumber + '. ');
+        // Case 2: Cursor at end of line - add next number
+        if (cursorInLine >= lineText.length) {
+            document.execCommand('insertText', false, '\n' + (num + 1) + '. ');
+            return;
         }
+
+        // Case 3: Cursor in middle - split line and renumber
+        const beforeCursor = lineText.slice(0, cursorInLine);
+        const afterCursor = lineText.slice(cursorInLine);
+
+        // Keep current line as is, new line gets next number
+        const newContent = beforeCursor + '\n' + (num + 1) + '. ' + afterCursor.trimStart();
+        this.replaceRange(lineStart, lineEnd, newContent);
+
+        // Position cursor after the new number
+        const newCursorPos = lineStart + beforeCursor.length + 1 + String(num + 1).length + 2;
+        this.setCursorPosition(newCursorPos);
     },
 
     handleBackspace(e) {
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return;
+        const { lineText, lineStart, cursorInLine } = this.getLineInfo();
+        const match = lineText.match(/^(\d+)\.\s*/);
 
-        const currentLine = this.getCurrentLineText();
-        const cursorPos = this.getCursorPositionInLine();
+        if (!match) return; // Not numbered line
 
-        // Check if cursor is right after "n. " pattern
-        const match = currentLine.match(/^(\d+)\.\s*/);
-        if (match && cursorPos <= match[0].length && cursorPos > 0) {
-            // Let default backspace handle it, just exit numbering mode
-            this.isNumberingMode = false;
+        // Cursor right after "N. " - remove the number prefix
+        if (cursorInLine > 0 && cursorInLine <= match[0].length) {
+            e.preventDefault();
+            const content = lineText.slice(match[0].length);
+            this.replaceRange(lineStart, lineStart + match[0].length, '');
         }
     },
 
-    handleInput() {
-        // Check if user started typing a number pattern
-        const text = this.editor.textContent;
-        if (/^1\.\s/.test(text) && !this.isNumberingMode) {
-            this.isNumberingMode = true;
-            this.currentNumber = 1;
-        }
-
-        // Save to note
-        if (typeof UI !== 'undefined') {
-            UI.saveCurrentNote();
-        }
+    handleTab(e) {
+        e.preventDefault();
+        document.execCommand('insertText', false, '    '); // 4 spaces
     },
 
     handlePaste(e) {
@@ -98,34 +87,68 @@ const AnswerEditor = {
         document.execCommand('insertText', false, text);
     },
 
-    getCurrentLineText() {
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return '';
+    // Get current line information
+    getLineInfo() {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return { lineText: '', lineStart: 0, lineEnd: 0, cursorInLine: 0 };
 
-        const range = selection.getRangeAt(0);
-        const node = range.startContainer;
-        const text = node.textContent || '';
+        const text = this.editor.textContent || '';
+        const cursorPos = this.getCursorPosition();
 
-        // Find line start
-        const beforeCursor = text.slice(0, range.startOffset);
-        const lineStart = beforeCursor.lastIndexOf('\n') + 1;
-        const lineEnd = text.indexOf('\n', range.startOffset);
+        // Find line boundaries
+        let lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+        let lineEnd = text.indexOf('\n', cursorPos);
+        if (lineEnd === -1) lineEnd = text.length;
 
-        return text.slice(lineStart, lineEnd === -1 ? undefined : lineEnd);
+        const lineText = text.slice(lineStart, lineEnd);
+        const cursorInLine = cursorPos - lineStart;
+
+        return { lineText, lineStart, lineEnd, cursorInLine };
     },
 
-    getCursorPositionInLine() {
-        const selection = window.getSelection();
-        if (!selection.rangeCount) return 0;
+    getCursorPosition() {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return 0;
 
-        const range = selection.getRangeAt(0);
-        const node = range.startContainer;
-        const text = node.textContent || '';
+        const range = sel.getRangeAt(0);
+        const preRange = range.cloneRange();
+        preRange.selectNodeContents(this.editor);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        return preRange.toString().length;
+    },
 
-        const beforeCursor = text.slice(0, range.startOffset);
-        const lineStart = beforeCursor.lastIndexOf('\n') + 1;
+    setCursorPosition(pos) {
+        const range = document.createRange();
+        const sel = window.getSelection();
 
-        return range.startOffset - lineStart;
+        let currentPos = 0;
+        const walker = document.createTreeWalker(this.editor, NodeFilter.SHOW_TEXT);
+        let node;
+
+        while ((node = walker.nextNode())) {
+            const nodeLen = node.textContent.length;
+            if (currentPos + nodeLen >= pos) {
+                range.setStart(node, pos - currentPos);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                return;
+            }
+            currentPos += nodeLen;
+        }
+    },
+
+    replaceRange(start, end, newText) {
+        const text = this.editor.textContent || '';
+        const newContent = text.slice(0, start) + newText + text.slice(end);
+        this.editor.textContent = newContent;
+        this.setCursorPosition(start + newText.length);
+    },
+
+    saveNote() {
+        if (typeof UI !== 'undefined') {
+            UI.saveCurrentNote();
+        }
     },
 
     getValue() {
@@ -138,39 +161,37 @@ const AnswerEditor = {
         }
     },
 
-    // Add answer from choice selection
+    // Add choice - smart insertion based on context
     addChoice(questionNum, choiceNum) {
         const choiceSymbol = String.fromCharCode(0x2460 + choiceNum - 1); // ① ② ③ etc
+        const current = this.getValue().trimEnd();
 
-        // Find the last number in the editor
-        const current = this.getValue().trim();
+        // Find next number
         let nextNum = 1;
-
-        if (current) {
-            // Find all numbers at line starts
-            const matches = current.match(/^(\d+)\./gm);
-            if (matches && matches.length > 0) {
-                // Get the highest number
-                const numbers = matches.map(m => parseInt(m));
-                nextNum = Math.max(...numbers) + 1;
-            }
+        const lines = current.split('\n');
+        for (const line of lines) {
+            const m = line.match(/^(\d+)\./);
+            if (m) nextNum = parseInt(m[1]) + 1;
         }
 
-        const answer = `${nextNum}. ${choiceSymbol}`;
+        // Build new line
+        const newLine = `${nextNum}. ${choiceSymbol}`;
 
         if (current) {
-            this.setValue(current + '\n' + answer);
+            this.setValue(current + '\n' + newLine);
         } else {
-            this.setValue(answer);
+            this.setValue(newLine);
         }
 
-        // Update state
-        this.currentNumber = nextNum;
-        this.isNumberingMode = true;
+        // Move cursor to end
+        this.editor.focus();
+        const range = document.createRange();
+        range.selectNodeContents(this.editor);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
 
-        // Save
-        if (typeof UI !== 'undefined') {
-            UI.saveCurrentNote();
-        }
+        this.saveNote();
     }
 };

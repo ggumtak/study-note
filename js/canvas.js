@@ -97,21 +97,77 @@ const Canvas = {
 
         // Manual touch scroll handler - since canvas has touch-action: none,
         // we need to handle finger scroll manually
+        // Note: S Pen also triggers touch events, so we skip scroll if isDrawing is true
         let touchScrollY = 0;
         let touchStartY = 0;
+        let lastTouchY = 0;
+        let lastTouchTime = 0;
+        let velocityY = 0;
+        let momentumAnimationId = null;
         const previewWrapper = document.getElementById('previewWrapper');
 
         canvas.addEventListener('touchstart', (e) => {
+            // Skip if pen is drawing (S Pen triggers touch events too)
+            if (this.isDrawing) return;
+
+            // Stop any ongoing momentum animation
+            if (momentumAnimationId) {
+                cancelAnimationFrame(momentumAnimationId);
+                momentumAnimationId = null;
+            }
+
             if (e.touches.length === 1) {
                 touchStartY = e.touches[0].clientY;
+                lastTouchY = touchStartY;
+                lastTouchTime = Date.now();
                 touchScrollY = previewWrapper?.scrollTop || 0;
+                velocityY = 0;
             }
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
+            // Skip if pen is drawing
+            if (this.isDrawing) return;
+
             if (e.touches.length === 1 && previewWrapper) {
-                const deltaY = touchStartY - e.touches[0].clientY;
+                const currentY = e.touches[0].clientY;
+                const currentTime = Date.now();
+                const deltaY = touchStartY - currentY;
+
+                // Calculate velocity (pixels per ms)
+                const timeDelta = currentTime - lastTouchTime;
+                if (timeDelta > 0) {
+                    velocityY = (lastTouchY - currentY) / timeDelta;
+                }
+
+                lastTouchY = currentY;
+                lastTouchTime = currentTime;
                 previewWrapper.scrollTop = touchScrollY + deltaY;
+            }
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', (e) => {
+            // Skip if pen is drawing
+            if (this.isDrawing) return;
+            if (!previewWrapper) return;
+
+            // Apply momentum if there's velocity
+            const friction = 0.95;  // Deceleration factor
+            const minVelocity = 0.01;  // Stop threshold
+
+            const applyMomentum = () => {
+                if (Math.abs(velocityY) < minVelocity) {
+                    momentumAnimationId = null;
+                    return;
+                }
+
+                previewWrapper.scrollTop += velocityY * 16;  // ~16ms per frame
+                velocityY *= friction;
+                momentumAnimationId = requestAnimationFrame(applyMomentum);
+            };
+
+            if (Math.abs(velocityY) > minVelocity) {
+                momentumAnimationId = requestAnimationFrame(applyMomentum);
             }
         }, { passive: true });
 
@@ -171,7 +227,7 @@ const Canvas = {
 
         // Size sliders
         document.getElementById('penSizeSlider')?.addEventListener('input', (e) => {
-            this.penSize = parseInt(e.target.value);
+            this.penSize = parseFloat(e.target.value);
             document.getElementById('penSizeLabel').textContent = this.penSize;
         });
 
@@ -382,12 +438,11 @@ const Canvas = {
         // Handle touch events
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const scaleX = rect.width ? canvas.width / rect.width : 1;
-        const scaleY = rect.height ? canvas.height / rect.height : 1;
 
+        // Return CSS-based coordinates (context is already scaled by DPI in resize)
         return {
-            x: (clientX - rect.left) * scaleX,
-            y: (clientY - rect.top) * scaleY
+            x: clientX - rect.left,
+            y: clientY - rect.top
         };
     },
 

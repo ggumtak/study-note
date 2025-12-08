@@ -96,11 +96,11 @@ const App = {
     },
 
     setupDrawingPalette() {
-        // This is now setupDetachableTools
-        const tools = document.getElementById('detachableTools');
-        const handle = document.getElementById('detachHandle');
-        const rotateBtn = document.getElementById('rotateToolsBtn');
-        if (!tools || !handle) return;
+        // Detachable toolbar setup
+        const toolbar = document.getElementById('detachableToolbar');
+        const handle = document.getElementById('toolbarDragHandle');
+        const rotateBtn = document.getElementById('toolbarRotateBtn');
+        if (!toolbar || !handle) return;
 
         let isDragging = false;
         let startX, startY, initialX, initialY;
@@ -109,18 +109,20 @@ const App = {
             isDragging = true;
 
             // Detach if not already
-            if (!tools.classList.contains('detached')) {
-                const rect = tools.getBoundingClientRect();
-                tools.classList.add('detached');
-                tools.style.left = rect.left + 'px';
-                tools.style.top = rect.top + 'px';
+            if (!toolbar.classList.contains('detached')) {
+                const rect = toolbar.getBoundingClientRect();
+                toolbar.classList.add('detached');
+                toolbar.style.left = rect.left + 'px';
+                toolbar.style.top = rect.top + 'px';
+                // Show rotate button when detached
+                rotateBtn?.classList.remove('hidden');
             }
 
-            tools.classList.add('dragging');
+            toolbar.classList.add('dragging');
             startX = e.clientX;
             startY = e.clientY;
-            initialX = tools.offsetLeft;
-            initialY = tools.offsetTop;
+            initialX = toolbar.offsetLeft;
+            initialY = toolbar.offsetTop;
 
             handle.setPointerCapture(e.pointerId);
         });
@@ -132,20 +134,34 @@ const App = {
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
 
-            tools.style.left = (initialX + dx) + 'px';
-            tools.style.top = (initialY + dy) + 'px';
+            toolbar.style.left = (initialX + dx) + 'px';
+            toolbar.style.top = (initialY + dy) + 'px';
         });
 
         handle.addEventListener('pointerup', (e) => {
             if (!isDragging) return;
             isDragging = false;
-            tools.classList.remove('dragging');
+            toolbar.classList.remove('dragging');
             handle.releasePointerCapture(e.pointerId);
         });
 
-        // Rotate button
+        // Rotate button - toggle horizontal/vertical layout
         rotateBtn?.addEventListener('click', () => {
-            tools.classList.toggle('horizontal');
+            toolbar.classList.toggle('horizontal');
+        });
+
+        // Double-tap handle to re-attach to header
+        let lastTap = 0;
+        handle.addEventListener('click', () => {
+            const now = Date.now();
+            if (now - lastTap < 300 && toolbar.classList.contains('detached')) {
+                // Double tap - re-attach
+                toolbar.classList.remove('detached', 'horizontal');
+                toolbar.style.left = '';
+                toolbar.style.top = '';
+                rotateBtn?.classList.add('hidden');
+            }
+            lastTap = now;
         });
     },
 

@@ -198,6 +198,92 @@ body {
     margin: 0 4px;
 }
 
+/* ===== Detachable Toolbar ===== */
+.detachable-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    transition: all 0.3s ease;
+}
+
+.detachable-toolbar.detached {
+    position: fixed;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 8px;
+    z-index: 1000;
+    border-radius: var(--radius);
+}
+
+.detachable-toolbar.detached.horizontal {
+    flex-direction: column;
+}
+
+.detachable-toolbar.detached.horizontal .drawing-tools {
+    flex-direction: column;
+}
+
+.toolbar-drag-handle {
+    width: 24px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    transition: all 0.15s;
+    touch-action: none;
+}
+
+.toolbar-drag-handle:hover {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+}
+
+.toolbar-drag-handle:active {
+    cursor: grabbing;
+}
+
+.toolbar-drag-handle svg {
+    width: 16px;
+    height: 16px;
+}
+
+.toolbar-rotate-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-xs);
+    transition: all 0.15s;
+    margin-left: 4px;
+}
+
+.toolbar-rotate-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+}
+
+.toolbar-rotate-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.toolbar-rotate-btn.hidden {
+    display: none;
+}
+
 .drawing-tools,
 .history-tools {
     display: flex;
